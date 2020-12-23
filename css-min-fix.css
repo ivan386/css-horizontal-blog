@@ -1,0 +1,11 @@
+@supports not (min-width: min(80ch, 100vw)) {
+	.hb-page{
+		min-width: 100vw;
+	}
+	
+	@media screen and (min-width: 80ch) {
+	  .hb-page{
+		  min-width: 80ch;
+	  }
+	}
+}
