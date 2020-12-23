@@ -1,0 +1,27 @@
+.hb-viewport{
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	scroll-snap-type: x mandatory;
+	overflow-x: auto;
+	overflow-y: hidden;
+	scrollbar-width: none;
+}
+
+.hb-viewport:hover{
+	scrollbar-width: auto;
+}
+
+.hb-container{
+	display: flex;
+}
+
+.hb-page{
+	scroll-snap-align: center;
+	max-height: 100vh;
+	overflow-y: auto;
+	min-width: min(80ch, 100vw);
+	padding: 0 calc((100vw - 80ch) / 2);
+}
