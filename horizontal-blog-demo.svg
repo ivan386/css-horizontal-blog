@@ -45,6 +45,7 @@
 					
 					.container{
 						display: flex;
+						width: 400vw;
 						animation: container 10s infinite;
 					}
 					
