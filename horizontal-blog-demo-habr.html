@@ -64,7 +64,7 @@
 				observer.observe(loader);
 			},0)
 			
-			var page = (window.location.search.match("[?&]page=([0-9]+)")?.[1] || 1) - 1;
+			var page = ((window.location.search.match("[?&]page=([0-9]+)") || [])[1] || 1) - 1;
 			var first = true;
 			
 			function next_page(){
