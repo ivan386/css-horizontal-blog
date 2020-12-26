@@ -1,0 +1,143 @@
+<html>
+	<head>
+		<title>horizontal blog demo</title>
+		<link href="horizontal-blog.css" rel="stylesheet" media="screen">
+		<link href="css-min-fix.css" rel="stylesheet" media="screen">
+		<style>
+			article {
+				text-align: justify;
+			}
+			img {
+				max-width: 100%;
+				height: auto;
+			}
+			code{
+				display: block;
+				overflow: auto;
+			}
+			.hb-viewport{
+				scrollbar-width: auto;
+				position: relative;
+			}
+			.hb-page{
+				word-wrap: anywhere;
+			}
+			html{
+				overflow: hidden;
+			}
+			body{
+				margin: 0;
+			}
+			
+		</style>
+		<script>
+			
+			
+			var observer = new IntersectionObserver( function(entries, observer) {
+				entries.forEach(entry => {
+					console.log(entry.target.id, entry.intersectionRatio, entry.isIntersecting);
+					if (entry.isIntersecting)
+					{
+						if (entry.target.id == "loader")
+							next_page();
+						else if(entry.target.classList.contains("hb-page"))
+						{
+							if (!entry.target.classList.contains("loaded"))
+								load_article(entry.target);
+								
+							if(entry.intersectionRatio > 0.6 )
+							{
+								var current = entry.target;
+								window.history.replaceState({},"", `?page=${current.dataset.page}#${current.id}`);
+								document.title = current.getElementsByClassName("title")[0].textContent;
+								current.focus();
+							}
+						}
+					}
+				});
+			}, {threshold: [0, 0.6]});
+			
+			var loader;
+
+			setTimeout(()=>{
+				loader = document.getElementById("loader");
+				observer.observe(loader);
+			},0)
+			
+			var page = (window.location.search.match("[?&]page=([0-9]+)")?.[1] || 1) - 1;
+			var first = true;
+			
+			function next_page(){
+				fetch('https://m.habr.com/kek/v2/articles/?user=ivan386&sort=rating&fl=ru&hl=ru&page='+(++page))
+				.then((r)=>r.json())
+				.then((json)=>{
+					var container = document.getElementsByClassName("hb-container")[0];
+					var first_id;
+					for(var i = 0; i < json.articleIds.length; i++)
+					{
+						var id = json.articleIds[i];
+						var title = json.articleRefs[id].titleHtml;
+						var text = json.articleRefs[id].leadData.textHtml;
+						var author = json.articleRefs[id].author;
+						if (!first_id)
+							first_id = id;
+						
+						var article = document.createElement("article");
+						article.id = id;
+						article.classList.add("hb-page");
+						article.dataset.page = page;
+						article.innerHTML = gen_article(id, title, text, author);
+						container.insertBefore(article, loader);
+						observer.observe(article);
+						if (first)
+						{
+							first = false;
+							var hash = window.location.hash;
+							if (hash)
+								setTimeout(()=>window.location.replace(hash),0);
+						}
+					}
+				})
+			}
+			
+			function gen_article(id, title, text, author)
+			{
+				text = text.replace(/<img /g,'<img loading="lazy"');
+				return `
+<h1><a href="https://m.habr.com/post/${id}/" class="title">${title}</a></h1>
+${text}
+<br/>
+Автор: <a href="https://m.habr.com/users/${author.login}/">${author.login}</a>
+<hr/>
+<a href="https://m.habr.com/post/${id}/comments/">Комментарии</a>
+<hr/>`;
+			}
+			
+			function load_article(article){
+				article.classList.add("loaded");
+				fetch("https://m.habr.com/kek/v2/articles/"+article.id+"/?fl=ru&hl=ru")
+				.then((r)=>r.json())
+				.then((json)=>{
+					var id = article.id;
+					var title = json.titleHtml;
+					var text = json.textHtml;
+					var author = json.author;
+					
+					article.innerHTML = gen_article(id, title, text, author);
+					article.querySelectorAll("img").forEach((img)=>{
+						if	(img.hasAttribute("data-src"))
+							img.src = img.getAttribute("data-src");
+					})
+				})
+			}
+			
+		</script>
+	</head>
+	<body>
+		<div class="hb-viewport">
+			<div class="hb-container">
+				<span id="loader" >Загружаем дальше</span>
+			</div>
+		</div>
+	</body>
+</html>
