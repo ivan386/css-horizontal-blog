@@ -7,12 +7,8 @@
 	scroll-snap-type: x mandatory;
 	overflow-x: auto;
 	overflow-y: hidden;
-	scrollbar-width: none;
 }
 
-.hb-viewport:hover{
-	scrollbar-width: auto;
-}
 
 .hb-container{
 	display: flex;
