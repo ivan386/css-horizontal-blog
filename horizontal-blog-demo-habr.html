@@ -41,9 +41,9 @@
 							next_page(++page);
 						else if(entry.target.classList.contains("hb-page"))
 						{
-							if (!entry.target.classList.contains("loaded"))
-								load_article(entry.target);
-								
+							if (!entry.target.classList.contains("loaded") && !entry.target.load_lag)
+								((target)=>{target.load_lag = setTimeout(()=>load_article(target), 100)})(entry.target);
+							
 							if(entry.intersectionRatio > 0.6 )
 							{
 								var current = entry.target;
@@ -53,6 +53,8 @@
 							}
 						}
 					}
+					else
+						entry.target.load_lag = clearTimeout(entry.target.load_lag || 0);
 				});
 			}, {threshold: [0, 0.6]});
 			
@@ -106,15 +108,13 @@
 			
 			function gen_article(id, title, text, author)
 			{
-				text = text.replace(/<img /g,'<img loading="lazy"');
 				return `
 <h1><a href="https://m.habr.com/post/${id}/" class="title">${title}</a></h1>
 ${text}
 <br/>
 Автор: <a href="https://m.habr.com/users/${author.login}/">${author.login}</a>
 <hr/>
-<a href="https://m.habr.com/post/${id}/comments/">Комментарии</a>
-<hr/>`;
+<a href="https://m.habr.com/post/${id}/comments/">Комментарии</a>`;
 			}
 			
 			function load_article(article){
@@ -130,7 +130,10 @@ ${text}
 					article.innerHTML = gen_article(id, title, text, author);
 					article.querySelectorAll("img").forEach((img)=>{
 						if	(img.hasAttribute("data-src"))
+						{
+							img.loading = "lazy";
 							img.src = img.getAttribute("data-src");
+						}
 					})
 				})
 			}
