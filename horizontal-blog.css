@@ -9,7 +9,6 @@
 	overflow-y: hidden;
 }
 
-
 .hb-container{
 	display: flex;
 	max-height: 100%;
@@ -17,7 +16,6 @@
 
 .hb-page{
 	scroll-snap-align: center;
-	max-height: 100vh;
 	overflow-y: auto;
 	min-width: min(80ch, 100vw);
 	padding: 0 calc((100vw - 80ch) / 2);
